@@ -12,11 +12,19 @@ import logging
 def normalize_text(text):
     '''Convert text to lower-case, remove HTML tags and pad punctuation with spaces.'''
     norm_text = text.lower()
-    norm_text = re.sub(r'<[^>]*>', ' ', norm_text)
-    norm_text = re.sub('http[s]?://\S*', ' ', norm_text)
-    for s in ['&quot;', '&amp;', '&nbsp;', '&lt;']:
-        norm_text = norm_text.replace(s, ' ')
-    for char in ['.', '"', '\'', '/', ',', '(', ')', '[', ']', '{', '}', '!', '?', ';', ':', '«', '»', '„', '“']:
+    # replace HTML tags
+    norm_text = re.sub(r'<[^>]+>', ' ', norm_text)
+    # replace links
+    norm_text = re.sub('http[s]?://\S*', 'URL', norm_text)
+    # replace integer and float numbers
+    norm_text = re.sub('[+-]?([0-9]*[,])?[0-9]+', 'NUM', norm_text)
+    # replace HTML encoded characters
+    html_encodings = ['&quot;', '&amp;', '&nbsp;', '&lt;', '&gt;']
+    html_replacements = ['"', '&', ' ', '<', '>']
+    for a,b in zip(html_encodings, html_replacements):
+        norm_text = norm_text.replace(a, b)
+    # wrap punctuations in spaces
+    for char in ['.', '"', '+', '-', '*',  '\'', '/', ',', '(', ')', '[', ']', '{', '}', '!', '?', ';', ':', '«', '»', '„', '“', '…', '»', '«']:
         norm_text = norm_text.replace(char, ' ' + char + ' ')
     return norm_text
 
